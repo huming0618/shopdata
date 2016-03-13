@@ -20,6 +20,26 @@ class autoLogin:
         urlopener.addheaders.append(('Host', host))
         urlopener.addheaders.append(('User-Agent', 'Mozilla/5.0 (compatible; MISE 9.0; Windows NT 6.1); Trident/5.0'))
         urlopener.addheaders.append(('Connection', 'Keep-Alive'))
+        downloadVodeImage(imageUrl,urlopener)
+        vocde = readVCode()
+        requestData = {}
+        replyContent = urlopener.open(urllib2.Request(url, urllib.urlencode(requestData)))
+        result = replyContent.read(50000)
+
+        if result.find('login.jsp') != -1:
+            None
+        else:
+            None
+
+
+    def downloadVCodeImage(self, imageUrl):
+        try:
+            toSaveFile=open(r'code.jpg', 'w')
+            toSaveFile.write(urlopener.open(urllib2.Request(imageUrl)).read()
+            toSaveFile.close()
+            return True
+        except:
+            return False
 
     def readConfig(self):
         with open('config.json','r') as configFile:
