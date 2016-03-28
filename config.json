@@ -1,7 +1,10 @@
 {
         "login":{
-            "url":"grn.cn",
             "user":"",
-            "pwd":""
+            "pwd":"",
+            "host":"portal.grn.cn",
+            "indexUrl": "http://portal.grn.cn/",
+            "loginUrl": "http://portal.grn.cn/loginproc.jsp",
+            "referUrl":"http://portal.grn.cn/"
         }
 }
