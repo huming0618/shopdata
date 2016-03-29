@@ -1,7 +1,11 @@
 import os
 import urllib
 import urllib2
-import xml.etree.ElementTree as ET
+import cookielib
+try:
+    from BeautifulSoup import BeautifulSoup as BS
+except ImportError:
+    from bs4 import BeautifulSoup as BS
 try:
     import json
 except ImportError:
@@ -12,25 +16,42 @@ class autoLogin:
         None
 
     def requestLogin(self,option):
+
         cookiejar=cookielib.CookieJar()
         urlopener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
         urllib2.install_opener(urlopener)
-        urlopener.addheaders.append(('Referer', option.referUrl))
+
+        print "option", option['referUrl']
+
+        urlopener.addheaders.append(('Referer', option['referUrl']))
         urlopener.addheaders.append(('Accept-Language', 'zh-CN'))
-        urlopener.addheaders.append(('Host', option.host))
+        urlopener.addheaders.append(('Host', option['host']))
         urlopener.addheaders.append(('User-Agent', 'Mozilla/5.0 (compatible; MISE 9.0; Windows NT 6.1); Trident/5.0'))
         urlopener.addheaders.append(('Connection', 'Keep-Alive'))
         #downloadVodeImage(imageUrl,urlopener)
         #vocde = readVCode()
-        requestData = {}
-        replyContent = urlopener.open(urllib2.Request(option.loginUrl, urllib.urlencode(requestData)))
+        #requestData = {}
+
+        replyContent = urlopener.open(urllib2.Request(option['indexUrl']))
         result = replyContent.read(50000)
 
+        print 'result', result
+
+        pageHtml = BS(result)
+        usernameInputNode = pageHtml.body.find('input',attrs={'id':'login'})
+        passInputNode = pageHtml.body.find('input',attrs={'type':'password'})
+        vcodeNode = pageHtml.body.find('input',attrs={'id':'verifyCode'})
+        print usernameInputNode.get('name')
+        print passInputNode.get('name')
+        print vcodeNode.get('name')
         if result.find('login.jsp') != -1:
             None
         else:
             None
 
+
+    def doLogin():
+        None
 
     def downloadVCodeImage(self, imageUrl):
         None
@@ -45,14 +66,14 @@ class autoLogin:
     def readConfig(self):
         with open('config.json','r') as configFile:
              config = configFile.read()
-             print config
              jsonConfig = json.loads(config)
         return jsonConfig
 
     def login(self):
         config = self.readConfig()
-        print config
+
         loginConfig = config['login']
+        print loginConfig
         # url = loginConfig['url']
         # user = loginConfig['user']
         # pwd = loginConfig['pwd']
