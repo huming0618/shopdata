@@ -15,10 +15,28 @@ class autoLogin:
     def init(self):
         None
 
-    def requestLogin(self,option):
+    def requestLogin(self):
+        None
 
+    def downloadFile(self, fileUrl, fileName, urlopener):
+        result=False
+
+        try:
+            if fileUrl:
+                outfile=open(fileName, 'w')
+                outfile.write(urlopener.open(urllib2.Request(fileUrl)).read())
+                outfile.close()
+                result=True
+            else:
+                print 'ERROR: fileUrl is NULL!'
+        except:
+            result=False
+        return result
+
+    def doLogin(self,option):
         cookiejar=cookielib.CookieJar()
         urlopener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
+
         urllib2.install_opener(urlopener)
 
         print "option", option['referUrl']
@@ -28,6 +46,7 @@ class autoLogin:
         urlopener.addheaders.append(('Host', option['host']))
         urlopener.addheaders.append(('User-Agent', 'Mozilla/5.0 (compatible; MISE 9.0; Windows NT 6.1); Trident/5.0'))
         urlopener.addheaders.append(('Connection', 'Keep-Alive'))
+
         #downloadVodeImage(imageUrl,urlopener)
         #vocde = readVCode()
         #requestData = {}
@@ -35,33 +54,41 @@ class autoLogin:
         replyContent = urlopener.open(urllib2.Request(option['indexUrl']))
         result = replyContent.read(50000)
 
+
         print 'result', result
 
         pageHtml = BS(result)
         usernameInputNode = pageHtml.body.find('input',attrs={'id':'login'})
         passInputNode = pageHtml.body.find('input',attrs={'type':'password'})
         vcodeNode = pageHtml.body.find('input',attrs={'id':'verifyCode'})
+
         print usernameInputNode.get('name')
-        print passInputNode.get('name')
+        pname = passInputNode.get('name')
         print vcodeNode.get('name')
-        if result.find('login.jsp') != -1:
-            None
-        else:
-            None
 
 
-    def doLogin():
-        None
+        #download vcode image
+        self.downloadFile(option['vcodeUrl'], os.path.join(option['tempDir'], "vcode.png"), urlopener)
+        #form the request data
+        loginData={
+                    'clientinfo':"",
+                    'info':"",
+                    'cmd':"already-registered",
+                    'login':option['user']
+                }
+        loginData[pname] = option['pwd']
+        loginData['verifyCode'] = raw_input('verify code')
+        loginReply = urlopener.open(urllib2.Request(option['loginUrl'], urllib.urlencode(loginData)))
+        loginResultHtml=loginReply.read(500000)
 
-    def downloadVCodeImage(self, imageUrl):
-        None
-        # try:
-        #     toSaveFile=open(r'code.jpg', 'w')
-        #     toSaveFile.write(urlopener.open(urllib2.Request(imageUrl)).read()
-        #     toSaveFile.close()
-        #     return True
-        # except:
-        #     return False
+        print '---- loginResultHtml ---'
+        print loginResultHtml
+
+        # if result.find('login.jsp') != -1:
+        #     None
+        # else:
+        #     None
+
 
     def readConfig(self):
         with open('config.json','r') as configFile:
@@ -79,12 +106,9 @@ class autoLogin:
         # pwd = loginConfig['pwd']
         # host = loginConfig['host']
         # referUrl = loginConfig['referUrl']
-        self.requestLogin(loginConfig);
+        self.doLogin(loginConfig);
 
     def log(self):
-        None
-
-    def downloadFile(self):
         None
 
 if __name__=='__main__':

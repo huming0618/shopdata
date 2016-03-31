@@ -1,10 +1,12 @@
 {
         "login":{
-            "user":"",
-            "pwd":"",
-            "host":"portal.grn.cn",
+            "user": "cdxz07@grn.cn",
+            "pwd": "123",
+            "host": "portal.grn.cn",
+            "tempDir": "/Users/peter/Desktop",
             "indexUrl": "http://portal.grn.cn/",
             "loginUrl": "http://portal.grn.cn/loginproc.jsp",
-            "referUrl": "http://portal.grn.cn/"
+            "referUrl": "http://portal.grn.cn/",
+            "vcodeUrl": "http://portal.grn.cn/validatecode.jsp"
         }
 }
