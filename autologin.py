@@ -2,6 +2,9 @@ import os
 import urllib
 import urllib2
 import cookielib
+import pytesseract
+from PIL import Image
+
 try:
     from BeautifulSoup import BeautifulSoup as BS
 except ImportError:
@@ -18,19 +21,30 @@ class autoLogin:
     def requestLogin(self):
         None
 
-    def downloadFile(self, fileUrl, fileName, urlopener):
+    def crackVCode(self, vcodeUrl, tempDir, fileName, urlopener):
         result=False
 
         try:
-            if fileUrl:
-                outfile=open(fileName, 'w')
-                outfile.write(urlopener.open(urllib2.Request(fileUrl)).read())
+            if vcodeUrl:
+                pngFileName = os.path.join(tempDir, fileName+'.png')
+                outfile=open(pngFileName, 'w')
+                outfile.write(urlopener.open(urllib2.Request(vcodeUrl)).read())
                 outfile.close()
-                result=True
+
+                png = Image.open(pngFileName)
+                png.load()
+                bg=Image.new("RGB", png.size, (255, 255, 255))
+                bg.paste(png, mask=png.split()[3])
+
+                jpgFileName = os.path.join(tempDir, fileName+'.jpg')
+                bg.save(jpgFileName, 'JPEG', quality=80)
+                image = Image.open(jpgFileName)
+                result = pytesseract.image_to_string(image)
             else:
                 print 'ERROR: fileUrl is NULL!'
-        except:
-            result=False
+        except Exception,e:
+            print 'Exception', e
+            result=None
         return result
 
     def doLogin(self,option):
@@ -62,27 +76,47 @@ class autoLogin:
         passInputNode = pageHtml.body.find('input',attrs={'type':'password'})
         vcodeNode = pageHtml.body.find('input',attrs={'id':'verifyCode'})
 
-        print usernameInputNode.get('name')
+        #print usernameInputNode.get('name')
         pname = passInputNode.get('name')
-        print vcodeNode.get('name')
+        #print vcodeNode.get('name')
 
 
-        #download vcode image
-        self.downloadFile(option['vcodeUrl'], os.path.join(option['tempDir'], "vcode.png"), urlopener)
+        #download vcode image and crack it
+        tempDir = option['tempDir']
+        vcode = self.crackVCode(option['vcodeUrl'], tempDir, "vcode", urlopener)
+
         #form the request data
         loginData={
                     'clientinfo':"",
                     'info':"",
                     'cmd':"already-registered",
+                    'tabs1':"already-registered",
                     'login':option['user']
                 }
+
         loginData[pname] = option['pwd']
-        loginData['verifyCode'] = raw_input('verify code')
+        loginData['verifyCode'] = vcode.strip()
+
+        print 'loginData'
+        print loginData
+
         loginReply = urlopener.open(urllib2.Request(option['loginUrl'], urllib.urlencode(loginData)))
         loginResultHtml=loginReply.read(500000)
 
-        print '---- loginResultHtml ---'
-        print loginResultHtml
+        resultPage = BS(loginResultHtml)
+        vcodeNode = resultPage.body.find('input',attrs={'id':'verifyCode'})
+
+        if vcodeNode == None:
+            print 'Done'
+        else:
+            print 'Login Failed'
+
+
+
+        # testReply = urlopener.open(urllib2.Request("http://portal.grn.cn/html/nds/object/object.jsp?table=99922374&&fixedcolumns=&id=4918127", urllib.urlencode(loginData)))
+        # testReplyHtml=testReply.read(500000)
+        # print '---- testReplyHtml ---'
+        # print testReplyHtml
 
         # if result.find('login.jsp') != -1:
         #     None
