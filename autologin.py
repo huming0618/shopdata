@@ -48,7 +48,9 @@ class autoLogin:
         return result
 
     def doLogin(self,option):
-        cookiejar=cookielib.CookieJar()
+        cookieFile = 'cookie';
+        #cookiejar=cookielib.CookieJar()
+        cookiejar = cookielib.MozillaCookieJar(cookieFile)
         urlopener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
 
         urllib2.install_opener(urlopener)
@@ -108,6 +110,8 @@ class autoLogin:
 
         if vcodeNode == None:
             print 'Done'
+            #print loginResultHtml
+            cookiejar.save(ignore_discard=True, ignore_expires=True)
         else:
             print 'Login Failed'
 
@@ -123,6 +127,15 @@ class autoLogin:
         # else:
         #     None
 
+    def testCookieLogin(self):
+        cookiejar = cookielib.MozillaCookieJar()
+        cookiejar.load('cookie', ignore_discard=True, ignore_expires=True)
+        urlopener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
+        urllib2.install_opener(urlopener)
+        testReply = urlopener.open(urllib2.Request("http://portal.grn.cn/html/nds/object/object.jsp?table=99922374&&fixedcolumns=&id=4918127"))
+        testReplyHtml=testReply.read(500000)
+        print '---- testReplyHtml ---'
+        print testReplyHtml
 
     def readConfig(self):
         with open('config.json','r') as configFile:
@@ -133,14 +146,10 @@ class autoLogin:
     def login(self):
         config = self.readConfig()
 
-        loginConfig = config['login']
-        print loginConfig
-        # url = loginConfig['url']
-        # user = loginConfig['user']
-        # pwd = loginConfig['pwd']
-        # host = loginConfig['host']
-        # referUrl = loginConfig['referUrl']
-        self.doLogin(loginConfig);
+        # loginConfig = config['login']
+        # print loginConfig
+        # self.doLogin(loginConfig);
+        self.testCookieLogin()
 
     def log(self):
         None
