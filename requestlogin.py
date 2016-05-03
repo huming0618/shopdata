@@ -1,10 +1,12 @@
 #coding=utf8
 
 import requests
+from urllib import quote,unquote
 import os
 import cookielib
 import pytesseract
 from PIL import Image
+import json
 #from StringIO import StringIO
 
 try:
@@ -91,13 +93,48 @@ class requestLogin:
         # print 'login result'
         # print result
 
+        #original
+        # testDataQueryParam = quote(json.dumps({
+        #                     "init_query": "false",
+        #                     "range": 20,
+        #                     "show_alert": "true",
+        #                     "start": 0,
+        #                     "qlcid": 1047512,
+        #                     "dir_perm": 1,
+        #                     "fixedcolumns": "",
+        #                     "orders": [{"d": "排名", "c": "V_STORERETAILORDERDAY.ORDERNO"}],
+        #                     "table": "V_STORERETAILORDERDAY",
+        #                     "callbackEvent": "RefreshGrid",
+        #                     "subtotal": "true",
+        #                     "param_str2": "table=99922374&tab_count=1&return_type=n&accepter_id=null&qlcid=1047512&param_count=3&resulthandler=%2Fhtml%2Fnds%2Fportal%2Ftable_list.jsp&show_maintableid=true&V_STORERETAILORDERDAY.DATEDESC=20160424~20160501&V_STORERETAILORDERDAY.DATEDESC_1=20160424&V_STORERETAILORDERDAY.DATEDESC_2=20160501&V_STORERETAILORDERDAY.C_STORE_ID=&V_STORERETAILORDERDAY.C_STORE_ID%2Fsql=&V_STORERETAILORDERDAY.C_STORE_ID%2Ffilter=&V_STORERETAILORDERDAY.ORDERNO=&show_all=true&queryindex_-1=-1",
+        #                     "resulthandler": "/html/nds/portal/table_result.jsp",
+        #                     "totalRowCount": 24
+        #                 }));
+
+        testDataQueryParam = quote(json.dumps({
+                            "init_query": "false",
+                            "range": 20,
+                            "show_alert": "true",
+                            "start": 0,
+                            "qlcid": 1047512,
+                            "dir_perm": 1,
+                            "fixedcolumns": "",
+                            "orders": [{"d": "排名", "c": "V_STORERETAILORDERDAY.ORDERNO"}],
+                            "table": "V_STORERETAILORDERDAY",
+                            "callbackEvent": "RefreshGrid",
+                            "subtotal": "true",
+                            "param_str2": "table=99922374&tab_count=1&return_type=n&accepter_id=null&qlcid=1047512&param_count=3&resulthandler=%2Fhtml%2Fnds%2Fportal%2Ftable_list.jsp&show_maintableid=true&V_STORERETAILORDERDAY.DATEDESC=20160424~20160501&V_STORERETAILORDERDAY.DATEDESC_1=20160424&V_STORERETAILORDERDAY.DATEDESC_2=20160501&V_STORERETAILORDERDAY.C_STORE_ID=&V_STORERETAILORDERDAY.C_STORE_ID%2Fsql=&V_STORERETAILORDERDAY.C_STORE_ID%2Ffilter=&V_STORERETAILORDERDAY.ORDERNO=&show_all=true&queryindex_-1=-1",
+                            "totalRowCount": 1
+                        }));
+
         cookies = session.cookies.get_dict()
         testData = "callCount=1" + "\npage=/html/nds/portal/ssv/index.jsp?ss=48" + "\nhttpSessionId={0}".format(cookies['JSESSIONID'])
         testData = testData  + "\nscriptSessionId=yfzhu441"
         testData = testData  + "\nc0-scriptName=Controller"
         testData = testData  + "\nc0-methodName=query"
         testData = testData  + "\nc0-id=0"
-        testData = testData  + "\nc0-param0=string:%7B%22init_query%22%3A%20false%2C%20%22range%22%3A%2020%2C%20%22show_alert%22%3A%20true%2C%20%22start%22%3A%200%2C%20%22qlcid%22%3A%201047512%2C%20%22dir_perm%22%3A%201%2C%20%22fixedcolumns%22%3A%20%22%22%2C%20%22orders%22%3A%20%5B%7B%22d%22%3A%20%22%E6%8E%92%E5%90%8D%22%2C%20%22c%22%3A%20%22V_STORERETAILORDERDAY.ORDERNO%22%7D%5D%2C%20%22table%22%3A%20%22V_STORERETAILORDERDAY%22%2C%20%22callbackEvent%22%3A%20%22RefreshGrid%22%2C%20%22subtotal%22%3A%20true%2C%20%22param_str2%22%3A%20%22table%3D99922374%26tab_count%3D1%26return_type%3Dn%26accepter_id%3Dnull%26qlcid%3D1047512%26param_count%3D3%26resulthandler%3D%252Fhtml%252Fnds%252Fportal%252Ftable_list.jsp%26show_maintableid%3Dtrue%26V_STORERETAILORDERDAY.DATEDESC%3D20160424~20160501%26V_STORERETAILORDERDAY.DATEDESC_1%3D20160424%26V_STORERETAILORDERDAY.DATEDESC_2%3D20160501%26V_STORERETAILORDERDAY.C_STORE_ID%3D%26V_STORERETAILORDERDAY.C_STORE_ID%252Fsql%3D%26V_STORERETAILORDERDAY.C_STORE_ID%252Ffilter%3D%26V_STORERETAILORDERDAY.ORDERNO%3D%26show_all%3Dtrue%26queryindex_-1%3D-1%22%2C%20%22resulthandler%22%3A%20%22%2Fhtml%2Fnds%2Fportal%2Ftable_result.jsp%22%2C%20%22totalRowCount%22%3A%2024%7D"
+        testData = testData + "\n" + "c0-param0=string:{0}".format(testDataQueryParam)
+        #testData = testData  + "\nc0-param0=string:%7B%22init_query%22%3A%20false%2C%20%22range%22%3A%2020%2C%20%22show_alert%22%3A%20true%2C%20%22start%22%3A%200%2C%20%22qlcid%22%3A%201047512%2C%20%22dir_perm%22%3A%201%2C%20%22fixedcolumns%22%3A%20%22%22%2C%20%22orders%22%3A%20%5B%7B%22d%22%3A%20%22%E6%8E%92%E5%90%8D%22%2C%20%22c%22%3A%20%22V_STORERETAILORDERDAY.ORDERNO%22%7D%5D%2C%20%22table%22%3A%20%22V_STORERETAILORDERDAY%22%2C%20%22callbackEvent%22%3A%20%22RefreshGrid%22%2C%20%22subtotal%22%3A%20true%2C%20%22param_str2%22%3A%20%22table%3D99922374%26tab_count%3D1%26return_type%3Dn%26accepter_id%3Dnull%26qlcid%3D1047512%26param_count%3D3%26resulthandler%3D%252Fhtml%252Fnds%252Fportal%252Ftable_list.jsp%26show_maintableid%3Dtrue%26V_STORERETAILORDERDAY.DATEDESC%3D20160424~20160501%26V_STORERETAILORDERDAY.DATEDESC_1%3D20160424%26V_STORERETAILORDERDAY.DATEDESC_2%3D20160501%26V_STORERETAILORDERDAY.C_STORE_ID%3D%26V_STORERETAILORDERDAY.C_STORE_ID%252Fsql%3D%26V_STORERETAILORDERDAY.C_STORE_ID%252Ffilter%3D%26V_STORERETAILORDERDAY.ORDERNO%3D%26show_all%3Dtrue%26queryindex_-1%3D-1%22%2C%20%22resulthandler%22%3A%20%22%2Fhtml%2Fnds%2Fportal%2Ftable_result.jsp%22%2C%20%22totalRowCount%22%3A%2024%7D"
         testData = testData  + "\nbatchId=3"
 
         # testData = """callCount=1\npage=/html/nds/portal/ssv/index.jsp?ss=48\nhttpSessionId={0}""".format(cookies['JSESSIONID'])
