@@ -18,6 +18,9 @@ try:
 except ImportError:
     import simplejson as json
 
+def _remoteHandleCallback(para1, para2, jsonText):
+    return json.loads(jsonText)
+
 class requestLogin:
     def init(self):
         None
@@ -144,6 +147,18 @@ class requestLogin:
 
         print 'data result'
         print resp.text
+
+        #dwr.engine._remoteHandleCallback
+        dwr = type('', (), {})()
+        dwr.engine = type('', (), {})()
+        dwr.engine._remoteHandleCallback = _remoteHandleCallback
+
+        fn_text = resp.text.replace("//#DWR-INSERT", '').replace("//#DWR-REPLY", '')
+        json_result = eval(fn_text)
+        print 'json_result', json_result
+        with open('test_resp.txt', 'w') as out:
+            out.write(resp.text)
+
 
     def readConfig(self):
         with open('config.json','r') as configFile:
