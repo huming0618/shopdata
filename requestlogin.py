@@ -7,6 +7,7 @@ import cookielib
 import pytesseract
 from PIL import Image
 import json
+import execjs
 #from StringIO import StringIO
 
 try:
@@ -145,19 +146,37 @@ class requestLogin:
 
         resp = session.post("http://portal.grn.cn/servlets/dwr/call/plaincall/Controller.query.dwr", testData, headers={'content-type': 'text/plain'})
 
-        print 'data result'
-        print resp.text
+        #print 'data result'
+        #print resp.text
 
+        dwr_jsctx_source = None
+        with open('jsctx.dwr.js') as js_file:
+            dwr_jsctx = js_file.read() + resp.text
+
+
+        ctx = execjs.compile(dwr_jsctx)
+
+        result = ctx.call('getResult')
+        error = ctx.call('getError')
+
+        if error != None:
+            with open('test_resp_error.txt', 'w') as out:
+                out.write(resp.text)
+            print 'Error', error
+        else:
+            with open('test_resp.txt', 'w') as out:
+                out.write(resp.text)
+            print 'Result', result['data']
+            print type(result)
         #dwr.engine._remoteHandleCallback
-        dwr = type('', (), {})()
-        dwr.engine = type('', (), {})()
-        dwr.engine._remoteHandleCallback = _remoteHandleCallback
+        # dwr = type('', (), {})()
+        # dwr.engine = type('', (), {})()
+        # dwr.engine._remoteHandleCallback = _remoteHandleCallback
+        #
+        # fn_text = resp.text.replace("//#DWR-INSERT", '').replace("//#DWR-REPLY", '')
+        # json_result = eval(fn_text)
+        # print 'json_result', json_result
 
-        fn_text = resp.text.replace("//#DWR-INSERT", '').replace("//#DWR-REPLY", '')
-        json_result = eval(fn_text)
-        print 'json_result', json_result
-        with open('test_resp.txt', 'w') as out:
-            out.write(resp.text)
 
 
     def readConfig(self):
