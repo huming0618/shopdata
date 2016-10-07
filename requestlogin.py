@@ -97,24 +97,6 @@ class requestLogin:
         # print 'login result'
         # print result
 
-        #original
-        # testDataQueryParam = quote(json.dumps({
-        #                     "init_query": "false",
-        #                     "range": 20,
-        #                     "show_alert": "true",
-        #                     "start": 0,
-        #                     "qlcid": 1047512,
-        #                     "dir_perm": 1,
-        #                     "fixedcolumns": "",
-        #                     "orders": [{"d": "排名", "c": "V_STORERETAILORDERDAY.ORDERNO"}],
-        #                     "table": "V_STORERETAILORDERDAY",
-        #                     "callbackEvent": "RefreshGrid",
-        #                     "subtotal": "true",
-        #                     "param_str2": "table=99922374&tab_count=1&return_type=n&accepter_id=null&qlcid=1047512&param_count=3&resulthandler=%2Fhtml%2Fnds%2Fportal%2Ftable_list.jsp&show_maintableid=true&V_STORERETAILORDERDAY.DATEDESC=20160424~20160501&V_STORERETAILORDERDAY.DATEDESC_1=20160424&V_STORERETAILORDERDAY.DATEDESC_2=20160501&V_STORERETAILORDERDAY.C_STORE_ID=&V_STORERETAILORDERDAY.C_STORE_ID%2Fsql=&V_STORERETAILORDERDAY.C_STORE_ID%2Ffilter=&V_STORERETAILORDERDAY.ORDERNO=&show_all=true&queryindex_-1=-1",
-        #                     "resulthandler": "/html/nds/portal/table_result.jsp",
-        #                     "totalRowCount": 24
-        #                 }));
-
         testDataQueryParam = quote(json.dumps({
                             "init_query": "false",
                             "range": 20,
@@ -168,6 +150,8 @@ class requestLogin:
                 out.write(resp.text)
             print 'Result', result['data']
             print type(result)
+            with open('test_resp.json', 'w') as out:
+                out.write(json.dumps(result))
         #dwr.engine._remoteHandleCallback
         # dwr = type('', (), {})()
         # dwr.engine = type('', (), {})()
