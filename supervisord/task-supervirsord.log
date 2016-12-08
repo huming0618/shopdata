@@ -1,2 +1,4 @@
 2016-10-12 22:41:18,800 CRIT Set uid to user 0
 2016-10-12 22:41:18,821 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2016-10-13 21:41:35,989 CRIT Can't drop privilege as nonroot user
+2016-10-13 21:41:36,015 CRIT Server 'unix_http_server' running without any HTTP authentication checking
