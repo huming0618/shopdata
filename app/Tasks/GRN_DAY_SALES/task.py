@@ -8,12 +8,16 @@ import pytesseract
 from PIL import Image
 import json
 import execjs
+import argparse
+import datetime
+
 #from StringIO import StringIO
 
 try:
     from BeautifulSoup import BeautifulSoup as BS
 except ImportError:
     from bs4 import BeautifulSoup as BS
+
 try:
     import json
 except ImportError:
@@ -22,7 +26,8 @@ except ImportError:
 def _remoteHandleCallback(para1, para2, jsonText):
     return json.loads(jsonText)
 
-class requestLogin:
+
+class DaySaleTask:
     def init(self):
         None
 
@@ -53,19 +58,22 @@ class requestLogin:
             result=None
         return result
 
-    def doLogin(self,option):
+    def run(self,option):
+        date_period = option['from'] + "~" + option['to']
+        config = self.readConfig()['login']
+
         cookieFile = 'cookie'
         cookiejar = cookielib.MozillaCookieJar(cookieFile)
         headers = {
-            'Referer': option['referUrl'],
+            'Referer': config['referUrl'],
             'Accept-Language': 'zh-CN',
-            'Host': option['host'],
+            'Host': config['host'],
             'User-Agent': 'Mozilla/5.0 (compatible; MISE 9.0; Windows NT 6.1); Trident/5.0',
             'Connection': 'Keep-Alive'
         }
 
         session = requests.Session()
-        resp = session.get(option['indexUrl'], headers=headers, cookies=cookiejar)
+        resp = session.get(config['indexUrl'], headers=headers, cookies=cookiejar)
         result = resp.text
 
         pageHtml = BS(result)
@@ -75,31 +83,32 @@ class requestLogin:
 
         pname = passInputNode.get('name')
 
-        tempDir = option['tempDir']
-        vcode = self.crackVCode(option['vcodeUrl'], tempDir, "vcode", session)
+        tempDir = config['tempDir']
+        vcode = self.crackVCode(config['vcodeUrl'], tempDir, "vcode", session)
 
         loginData={
                     'clientinfo':"",
                     'info':"",
                     'cmd':"already-registered",
                     'tabs1':"already-registered",
-                    'login':option['user']
+                    'login':config['user']
                 }
-        loginData[pname] = option['pwd']
+        loginData[pname] = config['pwd']
         loginData['verifyCode'] = vcode.strip()
 
-        print 'loginData'
-        print loginData
+        # print 'loginData'
+        # print loginData
 
-        resp = session.post(option['loginUrl'], data=loginData)
+        resp = session.post(config['loginUrl'], data=loginData)
         result = resp.text
 
         # print 'login result'
         # print result
 
+
         testDataQueryParam = quote(json.dumps({
                             "init_query": "false",
-                            "range": 20,
+                            "range": 1000,
                             "show_alert": "true",
                             "start": 0,
                             "qlcid": 1047512,
@@ -109,7 +118,7 @@ class requestLogin:
                             "table": "V_STORERETAILORDERDAY",
                             "callbackEvent": "RefreshGrid",
                             "subtotal": "true",
-                            "param_str2": "table=99922374&tab_count=1&return_type=n&accepter_id=null&qlcid=1047512&param_count=3&resulthandler=%2Fhtml%2Fnds%2Fportal%2Ftable_list.jsp&show_maintableid=true&V_STORERETAILORDERDAY.DATEDESC=20160424~20160501&V_STORERETAILORDERDAY.DATEDESC_1=20160424&V_STORERETAILORDERDAY.DATEDESC_2=20160501&V_STORERETAILORDERDAY.C_STORE_ID=&V_STORERETAILORDERDAY.C_STORE_ID%2Fsql=&V_STORERETAILORDERDAY.C_STORE_ID%2Ffilter=&V_STORERETAILORDERDAY.ORDERNO=&show_all=true&queryindex_-1=-1",
+                            "param_str2": "table=99922374&tab_count=1&return_type=n&accepter_id=null&qlcid=1047512&param_count=3&resulthandler=%2Fhtml%2Fnds%2Fportal%2Ftable_list.jsp&show_maintableid=true&V_STORERETAILORDERDAY.DATEDESC=" + date_period + "&V_STORERETAILORDERDAY.DATEDESC_1=20160424&V_STORERETAILORDERDAY.DATEDESC_2=20160501&V_STORERETAILORDERDAY.C_STORE_ID=&V_STORERETAILORDERDAY.C_STORE_ID%2Fsql=&V_STORERETAILORDERDAY.C_STORE_ID%2Ffilter=&V_STORERETAILORDERDAY.ORDERNO=&show_all=true&queryindex_-1=-1",
                             "totalRowCount": 1
                         }));
 
@@ -124,12 +133,12 @@ class requestLogin:
         testData = testData  + "\nbatchId=3"
 
         # testData = """callCount=1\npage=/html/nds/portal/ssv/index.jsp?ss=48\nhttpSessionId={0}""".format(cookies['JSESSIONID'])
-        print 'testData', testData
+        # print 'testData', testData
 
         resp = session.post("http://portal.grn.cn/servlets/dwr/call/plaincall/Controller.query.dwr", testData, headers={'content-type': 'text/plain'})
 
-        #print 'data result'
-        #print resp.text
+        print 'data result'
+        print resp.text
 
         dwr_jsctx_source = None
         with open('jsctx.dwr.js') as js_file:
@@ -142,7 +151,7 @@ class requestLogin:
         error = ctx.call('getError')
 
         if error != None:
-            with open('test_resp_error.txt', 'w') as out:
+            with open('test/test_resp_error.txt', 'w') as out:
                 out.write(resp.text)
             print 'Error', error
         else:
@@ -150,18 +159,8 @@ class requestLogin:
                 out.write(resp.text)
             print 'Result', result['data']
             print type(result)
-            with open('test_resp.json', 'w') as out:
+            with open('test/test_resp.json', 'w') as out:
                 out.write(json.dumps(result))
-        #dwr.engine._remoteHandleCallback
-        # dwr = type('', (), {})()
-        # dwr.engine = type('', (), {})()
-        # dwr.engine._remoteHandleCallback = _remoteHandleCallback
-        #
-        # fn_text = resp.text.replace("//#DWR-INSERT", '').replace("//#DWR-REPLY", '')
-        # json_result = eval(fn_text)
-        # print 'json_result', json_result
-
-
 
     def readConfig(self):
         with open('config.json','r') as configFile:
@@ -169,14 +168,14 @@ class requestLogin:
              jsonConfig = json.loads(config)
         return jsonConfig
 
-    def login(self):
-        config = self.readConfig()
-
-        loginConfig = config['login']
-        print loginConfig
-        self.doLogin(loginConfig);
-        #self.testCookieLogin()
-
 if __name__=='__main__':
-    requestLogin = requestLogin()
-    requestLogin.login()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--from", dest="start")
+    parser.add_argument("--to", dest="end")
+    arg = parser.parse_args()
+    print arg, type(arg)
+    option = {'from': arg.start, 'to': arg.end}
+    print option
+
+    task = DaySaleTask()
+    task.run(option)
