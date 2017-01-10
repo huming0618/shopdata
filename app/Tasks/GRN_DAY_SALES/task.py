@@ -108,7 +108,7 @@ class DaySaleTask:
 
         testDataQueryParam = quote(json.dumps({
                             "init_query": "false",
-                            "range": 1000,
+                            "range": 1000000,
                             "show_alert": "true",
                             "start": 0,
                             "qlcid": 1047512,
@@ -137,8 +137,8 @@ class DaySaleTask:
 
         resp = session.post("http://portal.grn.cn/servlets/dwr/call/plaincall/Controller.query.dwr", testData, headers={'content-type': 'text/plain'})
 
-        print 'data result'
-        print resp.text
+        # print 'data result'
+        # print resp.text
 
         dwr_jsctx_source = None
         with open('jsctx.dwr.js') as js_file:
@@ -151,16 +151,22 @@ class DaySaleTask:
         error = ctx.call('getError')
 
         if error != None:
-            with open('test/test_resp_error.txt', 'w') as out:
-                out.write(resp.text)
-            print 'Error', error
+            # with open('test/test_resp_error.txt', 'w') as out:
+            #     out.write(resp.text)
+            print error
+            raise Exception("Error")
         else:
             with open('test_resp.txt', 'w') as out:
                 out.write(resp.text)
-            print 'Result', result['data']
-            print type(result)
+            # print 'Result', result['data']
+            # print type(result)
+            sales_data = json.loads(json.dumps(result), encoding="utf-8")
             with open('test/test_resp.json', 'w') as out:
-                out.write(json.dumps(result))
+                out.write(json.dumps(sales_data))
+
+            print sales_data['data']['rows'][0][3]
+            print sales_data['data']['queryDesc']
+            print "OK.DATA DOWNLOADED SUCCESSFULLY"
 
     def readConfig(self):
         with open('config.json','r') as configFile:
@@ -173,9 +179,9 @@ if __name__=='__main__':
     parser.add_argument("--from", dest="start")
     parser.add_argument("--to", dest="end")
     arg = parser.parse_args()
-    print arg, type(arg)
+    # print arg, type(arg)
     option = {'from': arg.start, 'to': arg.end}
-    print option
+    # print option
 
     task = DaySaleTask()
     task.run(option)
