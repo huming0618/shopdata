@@ -59,7 +59,9 @@ class DaySaleTask:
         return result
 
     def run(self,option):
-        date_period = option['from'] + "~" + option['to']
+        from_date = option['from']
+        to_date = option['to']
+        date_period = from_date + "~" + to_date
         config = self.readConfig()['login']
 
         cookieFile = 'cookie'
@@ -118,7 +120,7 @@ class DaySaleTask:
                             "table": "V_STORERETAILORDERDAY",
                             "callbackEvent": "RefreshGrid",
                             "subtotal": "true",
-                            "param_str2": "table=99922374&tab_count=1&return_type=n&accepter_id=null&qlcid=1047512&param_count=3&resulthandler=%2Fhtml%2Fnds%2Fportal%2Ftable_list.jsp&show_maintableid=true&V_STORERETAILORDERDAY.DATEDESC=" + date_period + "&V_STORERETAILORDERDAY.DATEDESC_1=20160424&V_STORERETAILORDERDAY.DATEDESC_2=20160501&V_STORERETAILORDERDAY.C_STORE_ID=&V_STORERETAILORDERDAY.C_STORE_ID%2Fsql=&V_STORERETAILORDERDAY.C_STORE_ID%2Ffilter=&V_STORERETAILORDERDAY.ORDERNO=&show_all=true&queryindex_-1=-1",
+                            "param_str2": "table=99922374&tab_count=1&return_type=n&accepter_id=null&qlcid=1047512&param_count=3&resulthandler=%2Fhtml%2Fnds%2Fportal%2Ftable_list.jsp&show_maintableid=true&V_STORERETAILORDERDAY.DATEDESC=" + date_period + "&V_STORERETAILORDERDAY.DATEDESC_1=" + from_date + "&V_STORERETAILORDERDAY.DATEDESC_2=" + to_date + "&V_STORERETAILORDERDAY.C_STORE_ID=&V_STORERETAILORDERDAY.C_STORE_ID%2Fsql=&V_STORERETAILORDERDAY.C_STORE_ID%2Ffilter=&V_STORERETAILORDERDAY.ORDERNO=&show_all=true&queryindex_-1=-1",
                             "totalRowCount": 1
                         }));
 
@@ -164,6 +166,25 @@ class DaySaleTask:
             with open('test/test_resp.json', 'w') as out:
                 out.write(json.dumps(sales_data))
 
+            rows = sales_data['data']['rows']
+            for row in rows:
+                order_id = row[0]
+                order_date = row[1]
+                order_rank = row[2]
+                order_store = row[3]
+                order_sumretailprice = row[6]
+                order_sumsaleprice = row[7]
+                order_avgdiscount = row[8]
+                order_vipamt = row[9]
+                order_vipradio = row[10]
+                order_qty = row[11]
+                order_avg_price = row[12]
+                order_jst = row[13]
+                order_updateon = row[16]
+                order_status = row[17]
+
+                print order_store
+                print type(order_date)
             print sales_data['data']['rows'][0][3]
             print sales_data['data']['queryDesc']
             print "OK.DATA DOWNLOADED SUCCESSFULLY"
