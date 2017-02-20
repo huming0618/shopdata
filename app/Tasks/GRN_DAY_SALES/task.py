@@ -251,6 +251,9 @@ def gevent_test():
     print tic()
 
 def run_task(date_1, date_2):
+    from gevent import monkey; monkey.patch_all()
+    import gevent
+
     DIVIDER = 30
 
     from datetime import datetime
@@ -279,7 +282,18 @@ def run_task(date_1, date_2):
         segments.append((start_date, end_date))
         start_date = end_date + timedelta(days=1)
 
-    print segments
+    def create_subtask(item):
+        day1 = item[0].strftime("%Y%m%d")
+        day2 = item[1].strftime("%Y%m%d")
+        print day1, day2
+        def run_subtask():
+            task1 = DaySaleTask()
+            task1.run({'from': day1, 'to': day2})
+        return gevent.spawn(run_subtask)
+
+    task_list = map(create_subtask, segments)
+    gevent.joinall(task_list)
+    # print segments
 
 
 #python task.py --from 20161201 --to 20161218
