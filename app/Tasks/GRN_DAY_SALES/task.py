@@ -10,6 +10,7 @@ import json
 import execjs
 import argparse
 import datetime
+import uuid
 
 #from StringIO import StringIO
 
@@ -23,8 +24,8 @@ try:
 except ImportError:
     import simplejson as json
 
-def _remoteHandleCallback(para1, para2, jsonText):
-    return json.loads(jsonText)
+# def _remoteHandleCallback(para1, para2, jsonText):
+#     return json.loads(jsonText)
 
 
 class DaySaleTask:
@@ -86,7 +87,7 @@ class DaySaleTask:
         pname = passInputNode.get('name')
 
         tempDir = config['tempDir']
-        vcode = self.crackVCode(config['vcodeUrl'], tempDir, "vcode", session)
+        vcode = self.crackVCode(config['vcodeUrl'], tempDir, str(uuid.uuid4()), session)
 
         loginData={
                     'clientinfo':"",
@@ -156,9 +157,9 @@ class DaySaleTask:
             # with open('test/test_resp_error.txt', 'w') as out:
             #     out.write(resp.text)
             print error
-            raise Exception("Error")
+            raise Exception("Error - Failed to get the data: [Detail] %s " % error)
         else:
-            with open('test_resp.txt', 'w') as out:
+            with open('test_resp_%s-%s.txt' % (from_date, to_date), 'w') as out:
                 out.write(resp.text)
             # print 'Result', result['data']
             # print type(result)
@@ -168,6 +169,8 @@ class DaySaleTask:
 
             rows = sales_data['data']['rows']
             for row in rows:
+                # print row
+                # SAMPLE [19772456, 20161217, 3, u'\u62c9\u8428\u6797\u5ed3\u5317\u8def', 252660, 1, u'319.00', u'281.00', u'0.88', u'0.0000', u'0.0000', 1, u'281.00', u'1.00', None, None, u'2017/02/05 06:16:21', u'Y']
                 order_id = row[0]
                 order_date = row[1]
                 order_rank = row[2]
@@ -183,10 +186,10 @@ class DaySaleTask:
                 order_updateon = row[16]
                 order_status = row[17]
 
-                print order_store
-                print type(order_date)
-            print sales_data['data']['rows'][0][3]
-            print sales_data['data']['queryDesc']
+                # print order_store
+                # print type(order_date)
+            # print sales_data['data']['rows'][0][3]
+            # print sales_data['data']['queryDesc']
             print "OK.DATA DOWNLOADED SUCCESSFULLY"
 
     def readConfig(self):
@@ -195,14 +198,102 @@ class DaySaleTask:
              jsonConfig = json.loads(config)
         return jsonConfig
 
+def gevent_test():
+    from gevent import monkey; monkey.patch_all()
+    import gevent
+    import time
+
+    # def task1():
+    #     task1 = DaySaleTask()
+    #     task1.run({'from': "20161201", 'to': "20161218"})
+    #
+    # def task2():
+    #     task1 = DaySaleTask()
+    #     task1.run({'from': "20161101", 'to': "20161118"})
+    #
+    # def task3():
+    #     task1 = DaySaleTask()
+    #     task1.run({'from': "20160501", 'to': "20160518"})
+    #
+    # def task4():
+    #     task1 = DaySaleTask()
+    #     task1.run({'from': "20160701", 'to': "20160718"})
+
+
+    def task1():
+        task1 = DaySaleTask()
+        task1.run({'from': "20160101", 'to': "20160301"})
+
+    def task2():
+        task1 = DaySaleTask()
+        task1.run({'from': "20160302", 'to': "20160601"})
+
+    def task3():
+        task1 = DaySaleTask()
+        task1.run({'from': "20160602", 'to': "20160901"})
+
+    def task4():
+        task1 = DaySaleTask()
+        task1.run({'from': "20160902", 'to': "20170101"})
+
+    start = time.time()
+    tic = lambda: '%1.1f seconds ellapsed' % (time.time() - start)
+    gevent.joinall([
+        gevent.spawn(task1),
+        gevent.spawn(task2),
+        gevent.spawn(task3),
+        gevent.spawn(task4)
+    ])
+
+    # task1()
+    # task2()
+    # task3()
+    print tic()
+
+def run_task(date_1, date_2):
+    DIVIDER = 30
+
+    from datetime import datetime
+    from datetime import timedelta
+    try:
+        from_date = datetime.strptime(date_1, "%Y-%m-%d")
+        to_date = datetime.strptime(date_2, "%Y-%m-%d")
+    except ValueError as e:
+        print "Invalid format of the date"
+
+    if from_date > to_date:
+        from_date,to_date = to_date,from_date
+
+    days = (to_date - from_date).days
+
+    start_date = from_date
+    end_date = to_date
+
+    points = range(0, days, DIVIDER)
+    segments = []
+    for x in points:
+        print days, x
+        end_date = start_date + timedelta(days=DIVIDER)
+        if end_date > to_date:
+            end_date = to_date
+        segments.append((start_date, end_date))
+        start_date = end_date + timedelta(days=1)
+
+    print segments
+
+
+#python task.py --from 20161201 --to 20161218
 if __name__=='__main__':
+
+    # gevent_test()
     parser = argparse.ArgumentParser()
     parser.add_argument("--from", dest="start")
     parser.add_argument("--to", dest="end")
     arg = parser.parse_args()
     # print arg, type(arg)
-    option = {'from': arg.start, 'to': arg.end}
-    # print option
-
-    task = DaySaleTask()
-    task.run(option)
+    run_task(arg.start, arg.end)
+    # option = {'from': arg.start, 'to': arg.end}
+    # # print option
+    #
+    # task = DaySaleTask()
+    # task.run(option)
