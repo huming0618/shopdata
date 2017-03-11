@@ -10,7 +10,9 @@ import json
 import execjs
 import datetime
 import uuid
+import psycopg2
 
+from config import config as task_config
 #from StringIO import StringIO
 
 try:
@@ -28,6 +30,12 @@ except ImportError:
 
 
 class DaySaleTask:
+    records = []
+
+    @staticmethod
+    def writeDB():
+        None
+
     def init(self):
         None
 
@@ -62,7 +70,7 @@ class DaySaleTask:
         from_date = option['from']
         to_date = option['to']
         date_period = from_date + "~" + to_date
-        config = self.readConfig()['login']
+        config = task_config['login']
 
         cookieFile = 'cookie'
         cookiejar = cookielib.MozillaCookieJar(cookieFile)
@@ -170,29 +178,26 @@ class DaySaleTask:
             for row in rows:
                 # print row
                 # SAMPLE [19772456, 20161217, 3, u'\u62c9\u8428\u6797\u5ed3\u5317\u8def', 252660, 1, u'319.00', u'281.00', u'0.88', u'0.0000', u'0.0000', 1, u'281.00', u'1.00', None, None, u'2017/02/05 06:16:21', u'Y']
-                order_id = row[0]
-                order_date = row[1]
-                order_rank = row[2]
-                order_store = row[3]
-                order_sumretailprice = row[6]
-                order_sumsaleprice = row[7]
-                order_avgdiscount = row[8]
-                order_vipamt = row[9]
-                order_vipradio = row[10]
-                order_qty = row[11]
-                order_avg_price = row[12]
-                order_jst = row[13]
-                order_updateon = row[16]
-                order_status = row[17]
+                record = {}
+                record["order_id"] = row[0]               # Int
+                record["order_date"] = row[1]             # DateString
+                record["order_rank"] = row[2]             # Int
+                record["order_store"] = row[3]            # String
+                record["order_sumretailprice"] = row[6]   # Money
+                record["order_sumsaleprice"] = row[7]     # Money
+                record["order_avgdiscount"] = row[8]      # double
+                record["order_vipamt"] = row[9]           # Money
+                record["order_vipradio"] = row[10]        # double
+                record["order_qty"] = row[11]             # Integer
+                record["order_avg_price"] = row[12]       # Money
+                record["order_jst"] = row[13]             #
+                record["order_updateon"] = row[16]        # DateString
+                record["order_status"] = row[17]          # Status
+
+                DaySaleTask.records.append(record);
 
                 # print order_store
                 # print type(order_date)
             # print sales_data['data']['rows'][0][3]
             # print sales_data['data']['queryDesc']
             print "OK.DATA DOWNLOADED SUCCESSFULLY"
-
-    def readConfig(self):
-        with open('config.json','r') as configFile:
-             config = configFile.read()
-             jsonConfig = json.loads(config)
-        return jsonConfig

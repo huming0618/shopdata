@@ -47,6 +47,10 @@ def run_task(date_1, date_2):
 
     task_list = map(create_subtask, segments)
     gevent.joinall(task_list)
+
+    print len(DaySaleTask.records)
+    print "DONE"
+
     # print segments
 
 
