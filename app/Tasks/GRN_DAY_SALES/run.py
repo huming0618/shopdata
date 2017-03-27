@@ -2,11 +2,19 @@
 import argparse
 import datetime
 
+from gevent import monkey; monkey.patch_all()
+import gevent
+
 from DaySaleTask import DaySaleTask
 
-def run_task(date_1, date_2):
-    from gevent import monkey; monkey.patch_all()
-    import gevent
+
+
+def run_subtasks(tasks):
+    gevent.joinall(tasks)
+    # checkt the status of the tasks
+    
+
+def run(date_1, date_2):
 
     DIVIDER = 30
 
@@ -46,7 +54,7 @@ def run_task(date_1, date_2):
         return gevent.spawn(run_subtask)
 
     task_list = map(create_subtask, segments)
-    gevent.joinall(task_list)
+    run_subtasks(task_list);
 
     print len(DaySaleTask.records)
     print "DONE"
@@ -62,8 +70,9 @@ if __name__=='__main__':
     parser.add_argument("--from", dest="start")
     parser.add_argument("--to", dest="end")
     arg = parser.parse_args()
+
     # print arg, type(arg)
-    run_task(arg.start, arg.end)
+    run(arg.start, arg.end)
     # option = {'from': arg.start, 'to': arg.end}
     # # print option
     #
