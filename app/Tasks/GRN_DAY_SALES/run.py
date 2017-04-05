@@ -12,7 +12,8 @@ from DaySaleTask import DaySaleTask
 def run_subtasks(tasks):
     gevent.joinall(tasks)
     # checkt the status of the tasks
-    
+    for task in tasks:
+        print 'successful %s' % (task.successful())
 
 def run(date_1, date_2):
 
