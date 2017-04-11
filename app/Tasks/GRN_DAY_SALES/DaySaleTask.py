@@ -44,6 +44,9 @@ class DaySaleTask:
 
         try:
             if vcodeUrl:
+                if not os.path.exists(tempDir):
+                    os.makedirs(tempDir)
+
                 pngFileName = os.path.join(tempDir, fileName+'.png')
                 outfile=open(pngFileName, 'w')
                 resp = session.get(vcodeUrl)
@@ -166,13 +169,14 @@ class DaySaleTask:
             print error
             raise Exception("Error - Failed to get the data: [Detail] %s " % error)
         else:
-            with open('test_resp_%s-%s.txt' % (from_date, to_date), 'w') as out:
+            with open('test/test_resp_%s-%s.txt' % (from_date, to_date), 'w') as out:
                 out.write(resp.text)
             # print 'Result', result['data']
             # print type(result)
             sales_data = json.loads(json.dumps(result), encoding="utf-8")
-            with open('test/test_resp.json', 'w') as out:
-                out.write(json.dumps(sales_data))
+
+            # with open('test/test_resp.json', 'w') as out:
+            #     out.write(json.dumps(sales_data))
 
             rows = sales_data['data']['rows']
             for row in rows:

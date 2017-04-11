@@ -12,6 +12,8 @@ from DaySaleTask import DaySaleTask
 def run_subtasks(tasks):
     gevent.joinall(tasks)
     # checkt the status of the tasks
+    failed = [x for x in tasks if x.successful() is False]
+    print "Failed %d" % len(failed)
     for task in tasks:
         print 'successful %s' % (task.successful())
 
@@ -63,7 +65,7 @@ def run(date_1, date_2):
     # print segments
 
 
-#python run.py --from 2016-12-01 --to 2016-12-18
+#python run.py --from 2016-01-01 --to 2016-12-18
 if __name__=='__main__':
 
     # gevent_test()
