@@ -1,4 +1,5 @@
 #coding=utf8
+from time import sleep
 import argparse
 import datetime
 
@@ -6,13 +7,26 @@ from gevent import monkey; monkey.patch_all()
 import gevent
 
 from DaySaleTask import DaySaleTask
+from config import config as task_config
 
-
+RETRY_COUNT = task_config['retry']['count']
+RETRY_INTERVAL = task_config['retry']['interval']
 
 def run_subtasks(tasks):
+    global RETRY_COUNT
+    global RETRY_INTERVAL
+    
     gevent.joinall(tasks)
     # checkt the status of the tasks
     failed = [x for x in tasks if x.successful() is False]
+    if len(failed) > 0:
+        if RETRY_COUNT > 0:
+            print "RETRY ...", len(failed), RETRY_COUNT
+            sleep(RETRY_INTERVAL)
+            run_subtasks(failed)
+            RETRY_COUNT = RETRY_COUNT - 1
+        else:
+            print "NO QUOTA for retry"
     print "Failed %d" % len(failed)
     for task in tasks:
         print 'successful %s' % (task.successful())

@@ -1,0 +1,16 @@
+{
+        "login":{
+            "user": "cdxz07@grn.cn",
+            "pwd": "123",
+            "host": "portal.grn.cn",
+            "tempDir": "/Users/peter/Desktop/Temp_GRN",
+            "indexUrl": "http://portal.grn.cn/",
+            "loginUrl": "http://portal.grn.cn/loginproc.jsp",
+            "referUrl": "http://portal.grn.cn/",
+            "vcodeUrl": "http://portal.grn.cn/validatecode.jsp"
+        },
+        "retry":{
+            "interval": 3,
+            "count": 3
+        }
+}
