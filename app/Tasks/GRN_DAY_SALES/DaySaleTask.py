@@ -48,7 +48,7 @@ class DaySaleTask:
                     os.makedirs(tempDir)
 
                 pngFileName = os.path.join(tempDir, fileName+'.png')
-                outfile=open(pngFileName, 'w')
+                outfile=open(pngFileName, 'wb')
                 resp = session.get(vcodeUrl)
                 outfile.write(resp.content)
                 outfile.close()
@@ -65,6 +65,8 @@ class DaySaleTask:
             else:
                 print 'ERROR: fileUrl is NULL!'
         except Exception,e:
+            import traceback
+            traceback.print_exc()
             print 'Exception', e
             result=None
         return result
@@ -205,3 +207,10 @@ class DaySaleTask:
             # print sales_data['data']['rows'][0][3]
             # print sales_data['data']['queryDesc']
             print "OK.DATA DOWNLOADED SUCCESSFULLY"
+
+if __name__ == "__main__":
+    option = {'from': '2016-11-01', 'to': '2016-11-18'}
+    # print option
+    
+    task = DaySaleTask()
+    task.run(option)
