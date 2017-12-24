@@ -22,9 +22,9 @@ def run_subtasks(tasks):
     if len(failed) > 0:
         if RETRY_COUNT > 0:
             print "RETRY ...", len(failed), RETRY_COUNT
+            RETRY_COUNT = RETRY_COUNT - 1
             sleep(RETRY_INTERVAL)
             run_subtasks(failed)
-            RETRY_COUNT = RETRY_COUNT - 1
         else:
             print "NO QUOTA for retry"
     print "Failed %d" % len(failed)
@@ -71,7 +71,7 @@ def run(date_1, date_2):
         return gevent.spawn(run_subtask)
 
     task_list = map(create_subtask, segments)
-    run_subtasks(task_list);
+    run_subtasks(task_list)
 
     print len(DaySaleTask.records)
     print "DONE"

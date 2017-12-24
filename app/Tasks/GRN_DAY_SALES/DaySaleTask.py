@@ -168,8 +168,9 @@ class DaySaleTask:
         if error != None:
             # with open('test/test_resp_error.txt', 'w') as out:
             #     out.write(resp.text)
-            print error
-            raise Exception("Error - Failed to get the data: [Detail] %s " % error)
+            #print error
+            #raise Exception("Error - Failed to get the data: [Detail] %s " % error)
+            raise Exception("Error - Failed to get the data")
         else:
             with open('test/test_resp_%s-%s.txt' % (from_date, to_date), 'w') as out:
                 out.write(resp.text)
