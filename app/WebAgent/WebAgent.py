@@ -25,7 +25,8 @@ try:
 except ImportError:
     import simplejson as json
 
-pytesseract.pytesseract.tesseract_cmd = task_config['tesseractBin']
+if task_config['tesseractBin']:
+    pytesseract.pytesseract.tesseract_cmd = task_config['tesseractBin']
 # def _remoteHandleCallback(para1, para2, jsonText):
 #     return json.loads(jsonText)
 
