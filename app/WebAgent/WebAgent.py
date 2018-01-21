@@ -76,9 +76,9 @@ class WebAgent:
         return result
 
     def run(self,option):
-        from_date = option['from']
-        to_date = option['to']
-        date_period = from_date + "~" + to_date
+        # from_date = option['from']
+        # to_date = option['to']
+        # date_period = from_date + "~" + to_date
         config = task_config['login']
 
         cookieFile = 'cookie'
