@@ -10,7 +10,6 @@ import json
 import execjs
 import datetime
 import uuid
-import psycopg2
 
 from config import config as task_config
 #from StringIO import StringIO
@@ -25,6 +24,7 @@ try:
 except ImportError:
     import simplejson as json
 
+#    "tesseractBin": "C:\\Program Files (x86)\\Tesseract-OCR\\tesseract",
 if task_config['tesseractBin']:
     pytesseract.pytesseract.tesseract_cmd = task_config['tesseractBin']
 # def _remoteHandleCallback(para1, para2, jsonText):
@@ -71,7 +71,7 @@ class WebAgent:
         except Exception,e:
             import traceback
             traceback.print_exc()
-            print 'Exception when crack the vcode', e
+            print('Exception when crack the vcode', e)
             result=None
         return result
 
@@ -127,9 +127,9 @@ class WebAgent:
             out.write(result)
 
         if checkLoginResult(result):
-            print "OK.Logined"
+            print("OK.Logined")
         else:
-            print "Login Failed"
+            print("Login Failed")
 
 if __name__ == "__main__":
     option = {'from': '2016-11-01', 'to': '2016-11-18'}
