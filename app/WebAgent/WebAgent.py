@@ -67,7 +67,7 @@ class WebAgent:
 
                 result = pytesseract.image_to_string(image)
             else:
-                print 'ERROR: fileUrl is NULL!'
+                print('ERROR: fileUrl is NULL!')
         except Exception,e:
             import traceback
             traceback.print_exc()
